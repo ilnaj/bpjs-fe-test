@@ -16,7 +16,7 @@
                             <span v-if="emp.jobTitle == '' || emp.employer == '' || emp.startDate==null || emp.endDate==null ">(not specify)</span>
                             <span v-else>
                               <span style="font-size: 16px;font-weight: bold;">{{ emp.jobTitle }} at {{emp.employer}}</span> <br>
-                              <span style="font-size:14px">{{emp.startDate}} - {{emp.endDate}}</span>
+                              <span style="font-size:14px">{{convertDate(emp.startDate)}} - {{convertDate(emp.endDate)}}</span>
                             </span>
                           </h2>
                           <p tyle="width:100%">
@@ -24,12 +24,15 @@
                               <b-col><input-text :label="'Job Title'" :value="emp.jobTitle" @input="(e)=>emp.jobTitle = e"></input-text></b-col>
                               <b-col><input-text :label="'Employer'" :value="emp.employer"  @input="(e)=>emp.employer = e"></input-text></b-col>
                             </b-row>
+
                             <b-row>
                               <b-col>
                                   <b-row>
-                                    <b-col><input-text :label="'Start Date'" :type="'date'" :value="emp.startDate"  @input="(e)=>emp.startDate = e"></input-text></b-col>
-                                    <b-col><input-text :label="'End Date'" :type="'date'" :value="emp.endDate"  @input="(e)=>emp.endDate = e"></input-text></b-col>
+                                    <b-col><input-text :label="'Start Date'" :type="'date'" :value="emp.startDate"  @input="(e)=>checkDate('start',idx,e)"></input-text></b-col>
+                                    <b-col><input-text :label="'End Date'" :type="'date'" :value="emp.endDate"  @input="(e)=>checkDate('end',idx,e)"></input-text></b-col>
                                   </b-row>
+                                  <span v-if="isError" class="error-msg">End date must bigger than start date</span>
+
                               </b-col>
                               <b-col><input-text :label="'City'" :value="emp.city"  @input="(e)=>emp.city = e"></input-text></b-col>
                             </b-row>
@@ -67,6 +70,7 @@ export default {
   },
   data () {
     return {
+      isError:false,
       
     }
   },
@@ -82,9 +86,26 @@ export default {
       }
       this.value.push(newObj)
     },
-    _inputText(temp,e){
-      temp = e
-    }
+    checkDate(type,idx,e){
+      if(type=="start"){
+        this.value[idx].startDate = e
+      }else{
+        this.value[idx].endDate = e
+      }
+      if(this.value[idx].startDate != null && this.value[idx].endDate != null){
+        if(this.value[idx].startDate > this.value[idx].endDate){
+            this.isError = true
+        }else{
+          this.isError = false
+        }
+      }
+    },
+    convertDate(e){
+      let date = new Date(e)
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+      return monthNames[date.getMonth()] +" "+ date.getFullYear()
+    },
   }
 }
 </script>
@@ -93,6 +114,11 @@ export default {
 .Input-label {
     font-size: 15px;
     opacity: 0.5;
+}
+
+.error-msg{
+    color: #c60808;
+    font-size: 12px;
 }
 
 .add-butt{

@@ -16,7 +16,8 @@
                             <span v-if="edu.degree == '' || edu.school == '' || edu.startDate==null || edu.endDate==null ">(not specify)</span>
                             <span v-else>
                               <span style="font-size: 16px;font-weight: bold;">{{ edu.degree }} degree at {{edu.school}}</span> <br>
-                              <span style="font-size:14px">{{edu.startDate}} - {{edu.endDate}}</span>
+                              <span style="font-size:14px">{{convertDate(edu.startDate)}} - {{convertDate(edu.endDate)}}</span>
+
                             </span>
                           </h2>
                           <p tyle="width:100%">
@@ -27,9 +28,10 @@
                             <b-row>
                               <b-col>
                                   <b-row>
-                                    <b-col><input-text :label="'Start Date'" :type="'date'" :value="edu.startDate"  @input="(e)=>edu.startDate = e"></input-text></b-col>
-                                    <b-col><input-text :label="'End Date'" :type="'date'" :value="edu.endDate"  @input="(e)=>edu.endDate = e"></input-text></b-col>
+                                    <b-col><input-text :label="'Start Date'" :type="'date'" :value="edu.startDate"  @input="(e)=>checkDate('start',idx,e)"></input-text></b-col>
+                                    <b-col><input-text :label="'End Date'" :type="'date'" :value="edu.endDate"  @input="(e)=>checkDate('end',idx,e)"></input-text></b-col>
                                   </b-row>
+                                  <span v-if="isError" class="error-msg">End date must bigger than start date</span>
                               </b-col>
                               <b-col><input-text :label="'City'" :value="edu.city"  @input="(e)=>edu.city = e"></input-text></b-col>
                             </b-row>
@@ -67,6 +69,7 @@ export default {
   },
   data () {
     return {
+      isError:false,
       
     }
   },
@@ -82,9 +85,26 @@ export default {
       }
       this.value.push(newObj)
     },
-    _inputText(temp,e){
-      temp = e
-    }
+    checkDate(type,idx,e){
+      if(type=="start"){
+        this.value[idx].startDate = e
+      }else{
+        this.value[idx].endDate = e
+      }
+      if(this.value[idx].startDate != null && this.value[idx].endDate != null){
+        if(this.value[idx].startDate > this.value[idx].endDate){
+            this.isError = true
+        }else{
+          this.isError = false
+        }
+      }
+    },
+    convertDate(e){
+      let date = new Date(e)
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+      return monthNames[date.getMonth()] +" "+ date.getFullYear()
+    },
   }
 }
 </script>
